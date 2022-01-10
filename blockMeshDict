@@ -1,0 +1,1092 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.0.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    `format'      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// General macros to create 2D/extruded-2D meshes
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+changecom(//)changequote([,])
+define(calc, [esyscmd(perl -e 'print ($1)')])
+
+convertToMeters 0.001;
+
+define(pi, 3.14159265)
+
+// * * * DOMAIN SIZE * * *
+define(rx, 2) // Radius of sphere in x direction
+define(ry, 2) // Radius of sphere in y direction
+define(rz, 2) // Radius of sphere in z direction
+define(Mr, 4)   // Radius of spherical mesh (normalised with rx,ry,rz)
+define(L, calc(6.0*rx))  // Height of domain (x)
+define(W, calc(6.0*ry))  // Width of domain  (y)
+define(H, calc(6.0*rz))  // Length of domain (z)
+
+// * * * CELLS * * *
+define(Ntheta, 10)       // cells in theta direction
+define(Nphi,   10)       // cells in phi direction
+define(Nrad,   25)       // cells in rad direction
+define(NradMX, 10)       // cells in outer mesh (x direction)
+define(NradMY, 10)       // cells in outer mesh (y direction)
+define(NradMZ, 10)       // cells in outer mesh (z direction)
+define(Stheta,  1)       // refinement in theta direction
+define(Sphi, 1)          // refinement in phi direction
+define(Srad, 4)          // refinement in rad direction
+define(SradMX, 1)        // refinement in outer mesh (x direction)
+define(SradMY, 0.25)        // refinement in outer mesh (y direction)
+define(SradMZ, 1)        // refinement in outer mesh (z direction)
+
+
+define(N2, 20)  // cells of main mesh
+define(N3, 30) // cells of mesh length
+define(N4, 30) // cells in radial direction
+define(S1, 4) //  refinement in radial mesh
+define(S21, 4) //  refinement in block mesh
+define(S22, calc(1/S21)) // Reciprocal refinement factor
+define(N5, 10) // Outside mesh size
+
+
+// * * * * Sphere surface * * * *
+// * * Top point + connections * * 
+define(xtop, calc(rx*cos(0*pi/4)*sin(0*pi/8)))
+define(xbot, calc(rx*cos(0*pi/4)*sin(8*pi/8)))
+define(ytop, calc(ry*sin(0*pi/4)*sin(0*pi/8)))
+define(ybot, calc(ry*sin(0*pi/4)*sin(8*pi/8)))
+define(ztop, calc(rz*cos(0*pi/8)))
+define(zbot, calc(rz*cos(8*pi/8)))
+define(xt0a, calc(rx*cos(0*pi/4)*sin(1*pi/8)))
+define(xt1a, calc(rx*cos(1*pi/4)*sin(1*pi/8)))
+define(xt2a, calc(rx*cos(2*pi/4)*sin(1*pi/8)))
+define(xt3a, calc(rx*cos(3*pi/4)*sin(1*pi/8)))
+define(xt4a, calc(rx*cos(4*pi/4)*sin(1*pi/8)))
+define(xt5a, calc(rx*cos(5*pi/4)*sin(1*pi/8)))
+define(xt6a, calc(rx*cos(6*pi/4)*sin(1*pi/8)))
+define(xt7a, calc(rx*cos(7*pi/4)*sin(1*pi/8)))
+define(yt0a, calc(ry*sin(0*pi/4)*sin(1*pi/8)))
+define(yt1a, calc(ry*sin(1*pi/4)*sin(1*pi/8)))
+define(yt2a, calc(ry*sin(2*pi/4)*sin(1*pi/8)))
+define(yt3a, calc(ry*sin(3*pi/4)*sin(1*pi/8)))
+define(yt4a, calc(ry*sin(4*pi/4)*sin(1*pi/8)))
+define(yt5a, calc(ry*sin(5*pi/4)*sin(1*pi/8)))
+define(yt6a, calc(ry*sin(6*pi/4)*sin(1*pi/8)))
+define(yt7a, calc(ry*sin(7*pi/4)*sin(1*pi/8)))
+define(zta, calc(rz*            cos(1*pi/8)))
+
+// * * Bottom point + connections * *  
+define(xb0a, calc(rx*cos(0*pi/4)*sin(7*pi/8)))
+define(xb1a, calc(rx*cos(1*pi/4)*sin(7*pi/8)))
+define(xb2a, calc(rx*cos(2*pi/4)*sin(7*pi/8)))
+define(xb3a, calc(rx*cos(3*pi/4)*sin(7*pi/8)))
+define(xb4a, calc(rx*cos(4*pi/4)*sin(7*pi/8)))
+define(xb5a, calc(rx*cos(5*pi/4)*sin(7*pi/8)))
+define(xb6a, calc(rx*cos(6*pi/4)*sin(7*pi/8)))
+define(xb7a, calc(rx*cos(7*pi/4)*sin(7*pi/8)))
+define(yb0a, calc(ry*sin(0*pi/4)*sin(7*pi/8)))
+define(yb1a, calc(ry*sin(1*pi/4)*sin(7*pi/8)))
+define(yb2a, calc(ry*sin(2*pi/4)*sin(7*pi/8)))
+define(yb3a, calc(ry*sin(3*pi/4)*sin(7*pi/8)))
+define(yb4a, calc(ry*sin(4*pi/4)*sin(7*pi/8)))
+define(yb5a, calc(ry*sin(5*pi/4)*sin(7*pi/8)))
+define(yb6a, calc(ry*sin(6*pi/4)*sin(7*pi/8)))
+define(yb7a, calc(ry*sin(7*pi/4)*sin(7*pi/8)))
+define(zba, calc(rz*            cos(7*pi/8)))
+
+// * * Top circle of lattitude (1/4) + connection points * *
+define(x00, calc(rx*cos(0*pi/4)*sin(2*pi/8)))
+define(x01, calc(rx*cos(1*pi/4)*sin(2*pi/8)))
+define(x02, calc(rx*cos(2*pi/4)*sin(2*pi/8)))
+define(x03, calc(rx*cos(3*pi/4)*sin(2*pi/8)))
+define(x04, calc(rx*cos(4*pi/4)*sin(2*pi/8)))
+define(x05, calc(rx*cos(5*pi/4)*sin(2*pi/8)))
+define(x06, calc(rx*cos(6*pi/4)*sin(2*pi/8)))
+define(x07, calc(rx*cos(7*pi/4)*sin(2*pi/8)))
+define(y00, calc(ry*sin(0*pi/4)*sin(2*pi/8)))
+define(y01, calc(ry*sin(1*pi/4)*sin(2*pi/8)))
+define(y02, calc(ry*sin(2*pi/4)*sin(2*pi/8)))
+define(y03, calc(ry*sin(3*pi/4)*sin(2*pi/8)))
+define(y04, calc(ry*sin(4*pi/4)*sin(2*pi/8)))
+define(y05, calc(ry*sin(5*pi/4)*sin(2*pi/8)))
+define(y06, calc(ry*sin(6*pi/4)*sin(2*pi/8)))
+define(y07, calc(ry*sin(7*pi/4)*sin(2*pi/8)))
+define(z00, calc(rz*            cos(2*pi/8)))
+define(x001a, calc(rx*cos(0.125*pi)*sin(2*pi/8)))
+define(x012a, calc(rx*cos(0.375*pi)*sin(2*pi/8)))
+define(x023a, calc(rx*cos(0.625*pi)*sin(2*pi/8)))
+define(x034a, calc(rx*cos(0.875*pi)*sin(2*pi/8)))
+define(x045a, calc(rx*cos(1.125*pi)*sin(2*pi/8)))
+define(x056a, calc(rx*cos(1.375*pi)*sin(2*pi/8)))
+define(x067a, calc(rx*cos(1.625*pi)*sin(2*pi/8)))
+define(x070a, calc(rx*cos(1.875*pi)*sin(2*pi/8)))
+define(y001a, calc(ry*sin(0.125*pi)*sin(2*pi/8)))
+define(y012a, calc(ry*sin(0.375*pi)*sin(2*pi/8)))
+define(y023a, calc(ry*sin(0.625*pi)*sin(2*pi/8)))
+define(y034a, calc(ry*sin(0.875*pi)*sin(2*pi/8)))
+define(y045a, calc(ry*sin(1.125*pi)*sin(2*pi/8)))
+define(y056a, calc(ry*sin(1.375*pi)*sin(2*pi/8)))
+define(y067a, calc(ry*sin(1.625*pi)*sin(2*pi/8)))
+define(y070a, calc(ry*sin(1.875*pi)*sin(2*pi/8)))
+
+// * * Central circle of lattitude (equator) + connection points * *
+define(x10, calc(rx*cos(0*pi/4)*sin(4*pi/8)))
+define(x11, calc(rx*cos(1*pi/4)*sin(4*pi/8)))
+define(x12, calc(rx*cos(2*pi/4)*sin(4*pi/8)))
+define(x13, calc(rx*cos(3*pi/4)*sin(4*pi/8)))
+define(x14, calc(rx*cos(4*pi/4)*sin(4*pi/8)))
+define(x15, calc(rx*cos(5*pi/4)*sin(4*pi/8)))
+define(x16, calc(rx*cos(6*pi/4)*sin(4*pi/8)))
+define(x17, calc(rx*cos(7*pi/4)*sin(4*pi/8)))
+define(y10, calc(ry*sin(0*pi/4)*sin(4*pi/8)))
+define(y11, calc(ry*sin(1*pi/4)*sin(4*pi/8)))
+define(y12, calc(ry*sin(2*pi/4)*sin(4*pi/8)))
+define(y13, calc(ry*sin(3*pi/4)*sin(4*pi/8)))
+define(y14, calc(ry*sin(4*pi/4)*sin(4*pi/8)))
+define(y15, calc(ry*sin(5*pi/4)*sin(4*pi/8)))
+define(y16, calc(ry*sin(6*pi/4)*sin(4*pi/8)))
+define(y17, calc(ry*sin(7*pi/4)*sin(4*pi/8)))
+define(z10, calc(rz*            cos(4*pi/8)))
+define(x101a, calc(rx*cos(0.125*pi)*sin(4*pi/8)))
+define(x112a, calc(rx*cos(0.375*pi)*sin(4*pi/8)))
+define(x123a, calc(rx*cos(0.625*pi)*sin(4*pi/8)))
+define(x134a, calc(rx*cos(0.875*pi)*sin(4*pi/8)))
+define(x145a, calc(rx*cos(1.125*pi)*sin(4*pi/8)))
+define(x156a, calc(rx*cos(1.375*pi)*sin(4*pi/8)))
+define(x167a, calc(rx*cos(1.625*pi)*sin(4*pi/8)))
+define(x170a, calc(rx*cos(1.875*pi)*sin(4*pi/8)))
+define(y101a, calc(ry*sin(0.125*pi)*sin(4*pi/8)))
+define(y112a, calc(ry*sin(0.375*pi)*sin(4*pi/8)))
+define(y123a, calc(ry*sin(0.625*pi)*sin(4*pi/8)))
+define(y134a, calc(ry*sin(0.875*pi)*sin(4*pi/8)))
+define(y145a, calc(ry*sin(1.125*pi)*sin(4*pi/8)))
+define(y156a, calc(ry*sin(1.375*pi)*sin(4*pi/8)))
+define(y167a, calc(ry*sin(1.625*pi)*sin(4*pi/8)))
+define(y170a, calc(ry*sin(1.875*pi)*sin(4*pi/8)))
+
+// * * Bottom circle of lattitude (3/4) + connection points * *
+define(x20, calc(rx*cos(0*pi/4)*sin(6*pi/8)))
+define(x21, calc(rx*cos(1*pi/4)*sin(6*pi/8)))
+define(x22, calc(rx*cos(2*pi/4)*sin(6*pi/8)))
+define(x23, calc(rx*cos(3*pi/4)*sin(6*pi/8)))
+define(x24, calc(rx*cos(4*pi/4)*sin(6*pi/8)))
+define(x25, calc(rx*cos(5*pi/4)*sin(6*pi/8)))
+define(x26, calc(rx*cos(6*pi/4)*sin(6*pi/8)))
+define(x27, calc(rx*cos(7*pi/4)*sin(6*pi/8)))
+define(y20, calc(ry*sin(0*pi/4)*sin(6*pi/8)))
+define(y21, calc(ry*sin(1*pi/4)*sin(6*pi/8)))
+define(y22, calc(ry*sin(2*pi/4)*sin(6*pi/8)))
+define(y23, calc(ry*sin(3*pi/4)*sin(6*pi/8)))
+define(y24, calc(ry*sin(4*pi/4)*sin(6*pi/8)))
+define(y25, calc(ry*sin(5*pi/4)*sin(6*pi/8)))
+define(y26, calc(ry*sin(6*pi/4)*sin(6*pi/8)))
+define(y27, calc(ry*sin(7*pi/4)*sin(6*pi/8)))
+define(z20, calc(rz*            cos(6*pi/8)))
+define(x201a, calc(rx*cos(0.125*pi)*sin(6*pi/8)))
+define(x212a, calc(rx*cos(0.375*pi)*sin(6*pi/8)))
+define(x223a, calc(rx*cos(0.625*pi)*sin(6*pi/8)))
+define(x234a, calc(rx*cos(0.875*pi)*sin(6*pi/8)))
+define(x245a, calc(rx*cos(1.125*pi)*sin(6*pi/8)))
+define(x256a, calc(rx*cos(1.375*pi)*sin(6*pi/8)))
+define(x267a, calc(rx*cos(1.625*pi)*sin(6*pi/8)))
+define(x270a, calc(rx*cos(1.875*pi)*sin(6*pi/8)))
+define(y201a, calc(ry*sin(0.125*pi)*sin(6*pi/8)))
+define(y212a, calc(ry*sin(0.375*pi)*sin(6*pi/8)))
+define(y223a, calc(ry*sin(0.625*pi)*sin(6*pi/8)))
+define(y234a, calc(ry*sin(0.875*pi)*sin(6*pi/8)))
+define(y245a, calc(ry*sin(1.125*pi)*sin(6*pi/8)))
+define(y256a, calc(ry*sin(1.375*pi)*sin(6*pi/8)))
+define(y267a, calc(ry*sin(1.625*pi)*sin(6*pi/8)))
+define(y270a, calc(ry*sin(1.875*pi)*sin(6*pi/8)))
+
+// * * Meridians: top circle of lattitude to equator connection points * *
+define(x08a,  calc(rx*cos(0*pi/4)*sin(3*pi/8)))
+define(x19a,  calc(rx*cos(1*pi/4)*sin(3*pi/8)))
+define(x210a, calc(rx*cos(2*pi/4)*sin(3*pi/8)))
+define(x311a, calc(rx*cos(3*pi/4)*sin(3*pi/8)))
+define(x412a, calc(rx*cos(4*pi/4)*sin(3*pi/8)))
+define(x513a, calc(rx*cos(5*pi/4)*sin(3*pi/8)))
+define(x614a, calc(rx*cos(6*pi/4)*sin(3*pi/8)))
+define(x715a, calc(rx*cos(7*pi/4)*sin(3*pi/8)))
+define(y08a,  calc(ry*sin(0*pi/4)*sin(3*pi/8)))
+define(y19a,  calc(ry*sin(1*pi/4)*sin(3*pi/8)))
+define(y210a, calc(ry*sin(2*pi/4)*sin(3*pi/8)))
+define(y311a, calc(ry*sin(3*pi/4)*sin(3*pi/8)))
+define(y412a, calc(ry*sin(4*pi/4)*sin(3*pi/8)))
+define(y513a, calc(ry*sin(5*pi/4)*sin(3*pi/8)))
+define(y614a, calc(ry*sin(6*pi/4)*sin(3*pi/8)))
+define(y715a, calc(ry*sin(7*pi/4)*sin(3*pi/8)))
+define(z01a,  calc(rz*cos(3*pi/8)))
+
+// * * Meridians: bottom circle of lattitude to equator connection points * *
+define(x816a,  calc(rx*cos(0*pi/4)*sin(5*pi/8)))
+define(x917a,  calc(rx*cos(1*pi/4)*sin(5*pi/8)))
+define(x1018a, calc(rx*cos(2*pi/4)*sin(5*pi/8)))
+define(x1119a, calc(rx*cos(3*pi/4)*sin(5*pi/8)))
+define(x1220a, calc(rx*cos(4*pi/4)*sin(5*pi/8)))
+define(x1321a, calc(rx*cos(5*pi/4)*sin(5*pi/8)))
+define(x1422a, calc(rx*cos(6*pi/4)*sin(5*pi/8)))
+define(x1523a, calc(rx*cos(7*pi/4)*sin(5*pi/8)))
+define(y816a,  calc(ry*sin(0*pi/4)*sin(5*pi/8)))
+define(y917a,  calc(ry*sin(1*pi/4)*sin(5*pi/8)))
+define(y1018a, calc(ry*sin(2*pi/4)*sin(5*pi/8)))
+define(y1119a, calc(ry*sin(3*pi/4)*sin(5*pi/8)))
+define(y1220a, calc(ry*sin(4*pi/4)*sin(5*pi/8)))
+define(y1321a, calc(ry*sin(5*pi/4)*sin(5*pi/8)))
+define(y1422a, calc(ry*sin(6*pi/4)*sin(5*pi/8)))
+define(y1523a, calc(ry*sin(7*pi/4)*sin(5*pi/8)))
+define(z12a,   calc(rz*cos(5*pi/8)))
+
+
+
+
+// * * * * Sphere Mesh bounds * * * *
+// * * Top point + connections * * 
+define(Mxtop, calc(Mr*rx*cos(0*pi/4)*sin(0*pi/8)))
+define(Mxbot, calc(Mr*rx*cos(0*pi/4)*sin(8*pi/8)))
+define(Mytop, calc(Mr*ry*sin(0*pi/4)*sin(0*pi/8)))
+define(Mybot, calc(Mr*ry*sin(0*pi/4)*sin(8*pi/8)))
+define(Mztop, calc(Mr*rz*cos(0*pi/8)))
+define(Mzbot, calc(Mr*rz*cos(8*pi/8)))
+define(Mxt0a, calc(Mr*rx*cos(0*pi/4)*sin(1*pi/8)))
+define(Mxt1a, calc(Mr*rx*cos(1*pi/4)*sin(1*pi/8)))
+define(Mxt2a, calc(Mr*rx*cos(2*pi/4)*sin(1*pi/8)))
+define(Mxt3a, calc(Mr*rx*cos(3*pi/4)*sin(1*pi/8)))
+define(Mxt4a, calc(Mr*rx*cos(4*pi/4)*sin(1*pi/8)))
+define(Mxt5a, calc(Mr*rx*cos(5*pi/4)*sin(1*pi/8)))
+define(Mxt6a, calc(Mr*rx*cos(6*pi/4)*sin(1*pi/8)))
+define(Mxt7a, calc(Mr*rx*cos(7*pi/4)*sin(1*pi/8)))
+define(Myt0a, calc(Mr*ry*sin(0*pi/4)*sin(1*pi/8)))
+define(Myt1a, calc(Mr*ry*sin(1*pi/4)*sin(1*pi/8)))
+define(Myt2a, calc(Mr*ry*sin(2*pi/4)*sin(1*pi/8)))
+define(Myt3a, calc(Mr*ry*sin(3*pi/4)*sin(1*pi/8)))
+define(Myt4a, calc(Mr*ry*sin(4*pi/4)*sin(1*pi/8)))
+define(Myt5a, calc(Mr*ry*sin(5*pi/4)*sin(1*pi/8)))
+define(Myt6a, calc(Mr*ry*sin(6*pi/4)*sin(1*pi/8)))
+define(Myt7a, calc(Mr*ry*sin(7*pi/4)*sin(1*pi/8)))
+define(Mzta, calc(Mr*rz*            cos(1*pi/8)))
+
+// * * Bottom point + connections * *  
+define(Mxb0a, calc(Mr*rx*cos(0*pi/4)*sin(7*pi/8)))
+define(Mxb1a, calc(Mr*rx*cos(1*pi/4)*sin(7*pi/8)))
+define(Mxb2a, calc(Mr*rx*cos(2*pi/4)*sin(7*pi/8)))
+define(Mxb3a, calc(Mr*rx*cos(3*pi/4)*sin(7*pi/8)))
+define(Mxb4a, calc(Mr*rx*cos(4*pi/4)*sin(7*pi/8)))
+define(Mxb5a, calc(Mr*rx*cos(5*pi/4)*sin(7*pi/8)))
+define(Mxb6a, calc(Mr*rx*cos(6*pi/4)*sin(7*pi/8)))
+define(Mxb7a, calc(Mr*rx*cos(7*pi/4)*sin(7*pi/8)))
+define(Myb0a, calc(Mr*ry*sin(0*pi/4)*sin(7*pi/8)))
+define(Myb1a, calc(Mr*ry*sin(1*pi/4)*sin(7*pi/8)))
+define(Myb2a, calc(Mr*ry*sin(2*pi/4)*sin(7*pi/8)))
+define(Myb3a, calc(Mr*ry*sin(3*pi/4)*sin(7*pi/8)))
+define(Myb4a, calc(Mr*ry*sin(4*pi/4)*sin(7*pi/8)))
+define(Myb5a, calc(Mr*ry*sin(5*pi/4)*sin(7*pi/8)))
+define(Myb6a, calc(Mr*ry*sin(6*pi/4)*sin(7*pi/8)))
+define(Myb7a, calc(Mr*ry*sin(7*pi/4)*sin(7*pi/8)))
+define(Mzba, calc(Mr*rz*            cos(7*pi/8)))
+
+// * * Top circle of lattitude (1/4) + connection points * *
+define(Mx00, calc(Mr*rx*cos(0*pi/4)*sin(2*pi/8)))
+define(Mx01, calc(Mr*rx*cos(1*pi/4)*sin(2*pi/8)))
+define(Mx02, calc(Mr*rx*cos(2*pi/4)*sin(2*pi/8)))
+define(Mx03, calc(Mr*rx*cos(3*pi/4)*sin(2*pi/8)))
+define(Mx04, calc(Mr*rx*cos(4*pi/4)*sin(2*pi/8)))
+define(Mx05, calc(Mr*rx*cos(5*pi/4)*sin(2*pi/8)))
+define(Mx06, calc(Mr*rx*cos(6*pi/4)*sin(2*pi/8)))
+define(Mx07, calc(Mr*rx*cos(7*pi/4)*sin(2*pi/8)))
+define(My00, calc(Mr*ry*sin(0*pi/4)*sin(2*pi/8)))
+define(My01, calc(Mr*ry*sin(1*pi/4)*sin(2*pi/8)))
+define(My02, calc(Mr*ry*sin(2*pi/4)*sin(2*pi/8)))
+define(My03, calc(Mr*ry*sin(3*pi/4)*sin(2*pi/8)))
+define(My04, calc(Mr*ry*sin(4*pi/4)*sin(2*pi/8)))
+define(My05, calc(Mr*ry*sin(5*pi/4)*sin(2*pi/8)))
+define(My06, calc(Mr*ry*sin(6*pi/4)*sin(2*pi/8)))
+define(My07, calc(Mr*ry*sin(7*pi/4)*sin(2*pi/8)))
+define(Mz00, calc(Mr*rz*            cos(2*pi/8)))
+define(Mx001a, calc(Mr*rx*cos(0.125*pi)*sin(2*pi/8)))
+define(Mx012a, calc(Mr*rx*cos(0.375*pi)*sin(2*pi/8)))
+define(Mx023a, calc(Mr*rx*cos(0.625*pi)*sin(2*pi/8)))
+define(Mx034a, calc(Mr*rx*cos(0.875*pi)*sin(2*pi/8)))
+define(Mx045a, calc(Mr*rx*cos(1.125*pi)*sin(2*pi/8)))
+define(Mx056a, calc(Mr*rx*cos(1.375*pi)*sin(2*pi/8)))
+define(Mx067a, calc(Mr*rx*cos(1.625*pi)*sin(2*pi/8)))
+define(Mx070a, calc(Mr*rx*cos(1.875*pi)*sin(2*pi/8)))
+define(My001a, calc(Mr*ry*sin(0.125*pi)*sin(2*pi/8)))
+define(My012a, calc(Mr*ry*sin(0.375*pi)*sin(2*pi/8)))
+define(My023a, calc(Mr*ry*sin(0.625*pi)*sin(2*pi/8)))
+define(My034a, calc(Mr*ry*sin(0.875*pi)*sin(2*pi/8)))
+define(My045a, calc(Mr*ry*sin(1.125*pi)*sin(2*pi/8)))
+define(My056a, calc(Mr*ry*sin(1.375*pi)*sin(2*pi/8)))
+define(My067a, calc(Mr*ry*sin(1.625*pi)*sin(2*pi/8)))
+define(My070a, calc(Mr*ry*sin(1.875*pi)*sin(2*pi/8)))
+
+// * * Central circle of lattitude (equator) + connection points * *
+define(Mx10, calc(Mr*rx*cos(0*pi/4)*sin(4*pi/8)))
+define(Mx11, calc(Mr*rx*cos(1*pi/4)*sin(4*pi/8)))
+define(Mx12, calc(Mr*rx*cos(2*pi/4)*sin(4*pi/8)))
+define(Mx13, calc(Mr*rx*cos(3*pi/4)*sin(4*pi/8)))
+define(Mx14, calc(Mr*rx*cos(4*pi/4)*sin(4*pi/8)))
+define(Mx15, calc(Mr*rx*cos(5*pi/4)*sin(4*pi/8)))
+define(Mx16, calc(Mr*rx*cos(6*pi/4)*sin(4*pi/8)))
+define(Mx17, calc(Mr*rx*cos(7*pi/4)*sin(4*pi/8)))
+define(My10, calc(Mr*ry*sin(0*pi/4)*sin(4*pi/8)))
+define(My11, calc(Mr*ry*sin(1*pi/4)*sin(4*pi/8)))
+define(My12, calc(Mr*ry*sin(2*pi/4)*sin(4*pi/8)))
+define(My13, calc(Mr*ry*sin(3*pi/4)*sin(4*pi/8)))
+define(My14, calc(Mr*ry*sin(4*pi/4)*sin(4*pi/8)))
+define(My15, calc(Mr*ry*sin(5*pi/4)*sin(4*pi/8)))
+define(My16, calc(Mr*ry*sin(6*pi/4)*sin(4*pi/8)))
+define(My17, calc(Mr*ry*sin(7*pi/4)*sin(4*pi/8)))
+define(Mz10, calc(Mr*rz*            cos(4*pi/8)))
+define(Mx101a, calc(Mr*rx*cos(0.125*pi)*sin(4*pi/8)))
+define(Mx112a, calc(Mr*rx*cos(0.375*pi)*sin(4*pi/8)))
+define(Mx123a, calc(Mr*rx*cos(0.625*pi)*sin(4*pi/8)))
+define(Mx134a, calc(Mr*rx*cos(0.875*pi)*sin(4*pi/8)))
+define(Mx145a, calc(Mr*rx*cos(1.125*pi)*sin(4*pi/8)))
+define(Mx156a, calc(Mr*rx*cos(1.375*pi)*sin(4*pi/8)))
+define(Mx167a, calc(Mr*rx*cos(1.625*pi)*sin(4*pi/8)))
+define(Mx170a, calc(Mr*rx*cos(1.875*pi)*sin(4*pi/8)))
+define(My101a, calc(Mr*ry*sin(0.125*pi)*sin(4*pi/8)))
+define(My112a, calc(Mr*ry*sin(0.375*pi)*sin(4*pi/8)))
+define(My123a, calc(Mr*ry*sin(0.625*pi)*sin(4*pi/8)))
+define(My134a, calc(Mr*ry*sin(0.875*pi)*sin(4*pi/8)))
+define(My145a, calc(Mr*ry*sin(1.125*pi)*sin(4*pi/8)))
+define(My156a, calc(Mr*ry*sin(1.375*pi)*sin(4*pi/8)))
+define(My167a, calc(Mr*ry*sin(1.625*pi)*sin(4*pi/8)))
+define(My170a, calc(Mr*ry*sin(1.875*pi)*sin(4*pi/8)))
+
+// * * Bottom circle of lattitude (3/4) + connection points * *
+define(Mx20, calc(Mr*rx*cos(0*pi/4)*sin(6*pi/8)))
+define(Mx21, calc(Mr*rx*cos(1*pi/4)*sin(6*pi/8)))
+define(Mx22, calc(Mr*rx*cos(2*pi/4)*sin(6*pi/8)))
+define(Mx23, calc(Mr*rx*cos(3*pi/4)*sin(6*pi/8)))
+define(Mx24, calc(Mr*rx*cos(4*pi/4)*sin(6*pi/8)))
+define(Mx25, calc(Mr*rx*cos(5*pi/4)*sin(6*pi/8)))
+define(Mx26, calc(Mr*rx*cos(6*pi/4)*sin(6*pi/8)))
+define(Mx27, calc(Mr*rx*cos(7*pi/4)*sin(6*pi/8)))
+define(My20, calc(Mr*ry*sin(0*pi/4)*sin(6*pi/8)))
+define(My21, calc(Mr*ry*sin(1*pi/4)*sin(6*pi/8)))
+define(My22, calc(Mr*ry*sin(2*pi/4)*sin(6*pi/8)))
+define(My23, calc(Mr*ry*sin(3*pi/4)*sin(6*pi/8)))
+define(My24, calc(Mr*ry*sin(4*pi/4)*sin(6*pi/8)))
+define(My25, calc(Mr*ry*sin(5*pi/4)*sin(6*pi/8)))
+define(My26, calc(Mr*ry*sin(6*pi/4)*sin(6*pi/8)))
+define(My27, calc(Mr*ry*sin(7*pi/4)*sin(6*pi/8)))
+define(Mz20, calc(Mr*rz*            cos(6*pi/8)))
+define(Mx201a, calc(Mr*rx*cos(0.125*pi)*sin(6*pi/8)))
+define(Mx212a, calc(Mr*rx*cos(0.375*pi)*sin(6*pi/8)))
+define(Mx223a, calc(Mr*rx*cos(0.625*pi)*sin(6*pi/8)))
+define(Mx234a, calc(Mr*rx*cos(0.875*pi)*sin(6*pi/8)))
+define(Mx245a, calc(Mr*rx*cos(1.125*pi)*sin(6*pi/8)))
+define(Mx256a, calc(Mr*rx*cos(1.375*pi)*sin(6*pi/8)))
+define(Mx267a, calc(Mr*rx*cos(1.625*pi)*sin(6*pi/8)))
+define(Mx270a, calc(Mr*rx*cos(1.875*pi)*sin(6*pi/8)))
+define(My201a, calc(Mr*ry*sin(0.125*pi)*sin(6*pi/8)))
+define(My212a, calc(Mr*ry*sin(0.375*pi)*sin(6*pi/8)))
+define(My223a, calc(Mr*ry*sin(0.625*pi)*sin(6*pi/8)))
+define(My234a, calc(Mr*ry*sin(0.875*pi)*sin(6*pi/8)))
+define(My245a, calc(Mr*ry*sin(1.125*pi)*sin(6*pi/8)))
+define(My256a, calc(Mr*ry*sin(1.375*pi)*sin(6*pi/8)))
+define(My267a, calc(Mr*ry*sin(1.625*pi)*sin(6*pi/8)))
+define(My270a, calc(Mr*ry*sin(1.875*pi)*sin(6*pi/8)))
+
+// * * Meridians: top circle of lattitude to equator connection points * *
+define(Mx08a,  calc(Mr*rx*cos(0*pi/4)*sin(3*pi/8)))
+define(Mx19a,  calc(Mr*rx*cos(1*pi/4)*sin(3*pi/8)))
+define(Mx210a, calc(Mr*rx*cos(2*pi/4)*sin(3*pi/8)))
+define(Mx311a, calc(Mr*rx*cos(3*pi/4)*sin(3*pi/8)))
+define(Mx412a, calc(Mr*rx*cos(4*pi/4)*sin(3*pi/8)))
+define(Mx513a, calc(Mr*rx*cos(5*pi/4)*sin(3*pi/8)))
+define(Mx614a, calc(Mr*rx*cos(6*pi/4)*sin(3*pi/8)))
+define(Mx715a, calc(Mr*rx*cos(7*pi/4)*sin(3*pi/8)))
+define(My08a,  calc(Mr*ry*sin(0*pi/4)*sin(3*pi/8)))
+define(My19a,  calc(Mr*ry*sin(1*pi/4)*sin(3*pi/8)))
+define(My210a, calc(Mr*ry*sin(2*pi/4)*sin(3*pi/8)))
+define(My311a, calc(Mr*ry*sin(3*pi/4)*sin(3*pi/8)))
+define(My412a, calc(Mr*ry*sin(4*pi/4)*sin(3*pi/8)))
+define(My513a, calc(Mr*ry*sin(5*pi/4)*sin(3*pi/8)))
+define(My614a, calc(Mr*ry*sin(6*pi/4)*sin(3*pi/8)))
+define(My715a, calc(Mr*ry*sin(7*pi/4)*sin(3*pi/8)))
+define(Mz01a,  calc(Mr*rz*cos(3*pi/8)))
+
+// * * Meridians: bottom circle of lattitude to equator connection points * *
+define(Mx816a,  calc(Mr*rx*cos(0*pi/4)*sin(5*pi/8)))
+define(Mx917a,  calc(Mr*rx*cos(1*pi/4)*sin(5*pi/8)))
+define(Mx1018a, calc(Mr*rx*cos(2*pi/4)*sin(5*pi/8)))
+define(Mx1119a, calc(Mr*rx*cos(3*pi/4)*sin(5*pi/8)))
+define(Mx1220a, calc(Mr*rx*cos(4*pi/4)*sin(5*pi/8)))
+define(Mx1321a, calc(Mr*rx*cos(5*pi/4)*sin(5*pi/8)))
+define(Mx1422a, calc(Mr*rx*cos(6*pi/4)*sin(5*pi/8)))
+define(Mx1523a, calc(Mr*rx*cos(7*pi/4)*sin(5*pi/8)))
+define(My816a,  calc(Mr*ry*sin(0*pi/4)*sin(5*pi/8)))
+define(My917a,  calc(Mr*ry*sin(1*pi/4)*sin(5*pi/8)))
+define(My1018a, calc(Mr*ry*sin(2*pi/4)*sin(5*pi/8)))
+define(My1119a, calc(Mr*ry*sin(3*pi/4)*sin(5*pi/8)))
+define(My1220a, calc(Mr*ry*sin(4*pi/4)*sin(5*pi/8)))
+define(My1321a, calc(Mr*ry*sin(5*pi/4)*sin(5*pi/8)))
+define(My1422a, calc(Mr*ry*sin(6*pi/4)*sin(5*pi/8)))
+define(My1523a, calc(Mr*ry*sin(7*pi/4)*sin(5*pi/8)))
+define(Mz12a,   calc(Mr*rz*cos(5*pi/8)))
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+vertices
+(
+    // * * * Sphere boundaries * * *
+    // Top circle
+    (x00 y00 z00) // 0
+    (x01 y01 z00) // 1
+    (x02 y02 z00) // 2
+    (x03 y03 z00) // 3
+    (x04 y04 z00) // 4
+    (x05 y05 z00) // 5
+    (x06 y06 z00) // 6
+    (x07 y07 z00) // 7
+    
+    // Equator
+    (x10 y10 z10) // 8
+    (x11 y11 z10) // 9
+    (x12 y12 z10) // 10
+    (x13 y13 z10) // 11
+    (x14 y14 z10) // 12
+    (x15 y15 z10) // 13
+    (x16 y16 z10) // 14
+    (x17 y17 z10) // 15
+    
+    // Bottom circle
+    (x20 y20 z20) // 16
+    (x21 y21 z20) // 17
+    (x22 y22 z20) // 18
+    (x23 y23 z20) // 19
+    (x24 y24 z20) // 20
+    (x25 y25 z20) // 21
+    (x26 y26 z20) // 22
+    (x27 y27 z20) // 23
+    
+    // Bottom and top points
+    (xtop ytop ztop) // 24
+    (xbot ybot zbot) // 25
+    
+     // * * * Sphere Mesh boundaries * * *
+    // Top circle
+    (Mx00 My00 Mz00) // 26
+    (Mx01 My01 Mz00) // 27
+    (Mx02 My02 Mz00) // 28
+    (Mx03 My03 Mz00) // 29
+    (Mx04 My04 Mz00) // 30
+    (Mx05 My05 Mz00) // 31
+    (Mx06 My06 Mz00) // 32
+    (Mx07 My07 Mz00) // 33
+    
+    // Equator
+    (Mx10 My10 Mz10) // 34
+    (Mx11 My11 Mz10) // 35
+    (Mx12 My12 Mz10) // 36
+    (Mx13 My13 Mz10) // 37
+    (Mx14 My14 Mz10) // 38
+    (Mx15 My15 Mz10) // 39
+    (Mx16 My16 Mz10) // 40
+    (Mx17 My17 Mz10) // 41
+    
+    // Bottom circle
+    (Mx20 My20 Mz20) // 42
+    (Mx21 My21 Mz20) // 43
+    (Mx22 My22 Mz20) // 44
+    (Mx23 My23 Mz20) // 45
+    (Mx24 My24 Mz20) // 46
+    (Mx25 My25 Mz20) // 47
+    (Mx26 My26 Mz20) // 48
+    (Mx27 My27 Mz20) // 49
+    
+    // Bottom and top points
+    (Mxtop Mytop Mztop) // 50
+    (Mxbot Mybot Mzbot) // 51
+    
+    // Rectangular mesh
+    // Top section
+    (Mx00 My00 H) // 52
+    (Mx01 My01 H) // 53
+    (Mx02 My02 H) // 54
+    (Mx03 My03 H) // 55
+    (Mx04 My04 H) // 56
+    (Mx05 My05 H) // 57
+    (Mx06 My06 H) // 58
+    (Mx07 My07 H) // 59
+    (Mxtop Mytop H) // 60
+    
+    // Bottom section
+    (Mx00 My00 -H) // 61
+    (Mx01 My01 -H) // 62
+    (Mx02 My02 -H) // 63
+    (Mx03 My03 -H) // 64
+    (Mx04 My04 -H) // 65
+    (Mx05 My05 -H) // 66
+    (Mx06 My06 -H) // 67
+    (Mx07 My07 -H) // 68
+    (Mxtop Mytop -H) // 69
+    
+    // Equator section
+    (L My00 Mz00) // 70
+    (L My01 Mz00) // 71
+    (L My10 Mz10) // 72
+    (L My11 Mz10) // 73
+    (L My20 Mz20) // 74
+    (L My21 Mz20) // 75
+    
+    (Mx01 W Mz00) // 76
+    (Mx02 W Mz00) // 77
+    (Mx03 W Mz00) // 78
+    (Mx11 W Mz10) // 79
+    (Mx12 W Mz10) // 80
+    (Mx13 W Mz10) // 81
+    (Mx21 W Mz20) // 82
+    (Mx22 W Mz20) // 83
+    (Mx23 W Mz20) // 84   
+    
+    (-L My03 Mz00) // 85
+    (-L My04 Mz00) // 86
+    (-L My05 Mz00) // 87
+    (-L My13 Mz10) // 88
+    (-L My14 Mz10) // 89
+    (-L My15 Mz10) // 90
+    (-L My23 Mz20) // 91
+    (-L My24 Mz20) // 92
+    (-L My25 Mz20) // 93 
+    
+    (Mx05 -W Mz00) // 94
+    (Mx06 -W Mz00) // 95
+    (Mx07 -W Mz00) // 96
+    (Mx15 -W Mz10) // 97
+    (Mx16 -W Mz10) // 98
+    (Mx17 -W Mz10) // 99
+    (Mx25 -W Mz20) // 100
+    (Mx26 -W Mz20) // 101
+    (Mx27 -W Mz20) // 102
+    
+    (L My07 Mz00) // 103
+    (L My17 Mz10) // 104
+    (L My27 Mz20) // 105
+    
+    (L W Mz00) // 106
+    (L W Mz10) // 107
+    (L W Mz20) // 108
+    
+    (-L W Mz00) // 109
+    (-L W Mz10) // 110
+    (-L W Mz20) // 111 
+    
+    (L -W Mz00) // 112
+    (L -W Mz10) // 113
+    (L -W Mz20) // 114
+    
+    (-L -W Mz00) // 115
+    (-L -W Mz10) // 116
+    (-L -W Mz20) // 117 
+    
+
+    (L W H) // 118
+    (Mx01 W H) // 119
+    (Mx02 W H) // 120
+    (Mx03 W H) // 121
+    (-L W H) // 122
+    
+    (L W -H) // 118
+    (Mx01 W -H) // 119
+    (Mx02 W -H) // 120
+    (Mx03 W -H) // 121
+    (-L W -H) // 122
+    
+    (L -W H) // 123
+    (Mx01 -W H) // 124
+    (Mx02 -W H) // 125
+    (Mx03 -W H) // 126
+    (-L -W H) // 127
+    
+    (L -W -H) // 128
+    (Mx01 -W -H) // 129
+    (Mx02 -W -H) // 130
+    (Mx03 -W -H) // 131
+    (-L -W -H) // 132
+    
+    (-L My03 H) // 85
+    (-L My04 H) // 86
+    (-L My05 H) // 87
+    (L My03 H) // 85
+    (L My04 H) // 86
+    (L My05 H) // 87
+    (L My03 -H) // 85
+    (L My04 -H) // 86
+    (L My05 -H) // 87
+    (-L My03 -H) // 85
+    (-L My04 -H) // 86
+    (-L My05 -H) // 87
+);
+
+blocks
+(
+
+);
+
+edges
+(
+  // * * * arc edges for sphere * * *
+ 	arc 0 1 (x001a y001a z00)
+ 	arc 1 2 (x012a y012a z00)
+ 	arc 2 3 (x023a y023a z00)
+ 	arc 3 4 (x034a y034a z00)
+ 	arc 4 5 (x045a y045a z00)
+ 	arc 5 6 (x056a y056a z00)
+ 	arc 6 7 (x067a y067a z00)
+ 	arc 7 0 (x070a y070a z00)
+
+ 	arc 8 9   (x101a y101a z10)
+ 	arc 9 10  (x112a y112a z10)
+ 	arc 10 11 (x123a y123a z10)
+ 	arc 11 12 (x134a y134a z10)
+ 	arc 12 13 (x145a y145a z10)
+ 	arc 13 14 (x156a y156a z10)
+ 	arc 14 15 (x167a y167a z10)
+ 	arc 15 8  (x170a y170a z10)
+ 	
+ 	arc 16 17 (x201a y201a z20)
+ 	arc 17 18 (x212a y212a z20)
+ 	arc 18 19 (x223a y223a z20)
+ 	arc 19 20 (x234a y234a z20)
+ 	arc 20 21 (x245a y245a z20)
+ 	arc 21 22 (x256a y256a z20)
+ 	arc 22 23 (x267a y267a z20)
+ 	arc 23 16 (x270a y270a z20)
+ 	
+ 	arc 24 0  (xt0a yt0a zta)
+ 	arc 24 1  (xt1a yt1a zta)
+ 	arc 24 2  (xt2a yt2a zta)
+ 	arc 24 3  (xt3a yt3a zta)
+ 	arc 24 4  (xt4a yt4a zta)
+ 	arc 24 5  (xt5a yt5a zta)
+ 	arc 24 6  (xt6a yt6a zta)
+ 	arc 24 7  (xt7a yt7a zta)
+ 	
+ 	arc 25 16  (xb0a yb0a zba)
+ 	arc 25 17  (xb1a yb1a zba)
+ 	arc 25 18  (xb2a yb2a zba)
+ 	arc 25 19  (xb3a yb3a zba)
+ 	arc 25 20  (xb4a yb4a zba)
+ 	arc 25 21  (xb5a yb5a zba)
+ 	arc 25 22  (xb6a yb6a zba)
+ 	arc 25 23  (xb7a yb7a zba)
+ 	
+  arc 0 8  (x08a y08a z01a)
+ 	arc 1 9  (x19a y19a z01a)
+ 	arc 2 10 (x210a y210a z01a)
+ 	arc 3 11 (x311a y311a z01a)
+  arc 4 12 (x412a y412a z01a)
+ 	arc 5 13 (x513a y513a z01a)
+ 	arc 6 14 (x614a y614a z01a)
+ 	arc 7 15 (x715a y715a z01a)
+ 	 	 	
+  arc 8 16  (x816a  y816a  z12a)
+ 	arc 9 17  (x917a  y917a  z12a)
+ 	arc 10 18 (x1018a y1018a z12a)
+ 	arc 11 19 (x1119a y1119a z12a)
+  arc 12 20 (x1220a y1220a z12a)
+ 	arc 13 21 (x1321a y1321a z12a)
+ 	arc 14 22 (x1422a y1422a z12a)
+ 	arc 15 23 (x1523a y1523a z12a)
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	  // * * * arc edges for sphere * * *
+ 	arc 26 27 (Mx001a My001a Mz00)
+ 	arc 27 28 (Mx012a My012a Mz00)
+ 	arc 28 29 (Mx023a My023a Mz00)
+ 	arc 29 30 (Mx034a My034a Mz00)
+ 	arc 30 31 (Mx045a My045a Mz00)
+ 	arc 31 32 (Mx056a My056a Mz00)
+ 	arc 32 33 (Mx067a My067a Mz00)
+ 	arc 33 26 (Mx070a My070a Mz00)
+
+ 	arc 34 35 (Mx101a My101a Mz10)
+ 	arc 35 36 (Mx112a My112a Mz10)
+ 	arc 36 37 (Mx123a My123a Mz10)
+ 	arc 37 38 (Mx134a My134a Mz10)
+ 	arc 38 39 (Mx145a My145a Mz10)
+ 	arc 39 40 (Mx156a My156a Mz10)
+ 	arc 40 41 (Mx167a My167a Mz10)
+ 	arc 41 34 (Mx170a My170a Mz10)
+ 	
+ 	arc 42 43 (Mx201a My201a Mz20)
+ 	arc 43 44 (Mx212a My212a Mz20)
+ 	arc 44 45 (Mx223a My223a Mz20)
+ 	arc 45 46 (Mx234a My234a Mz20)
+ 	arc 46 47 (Mx245a My245a Mz20)
+ 	arc 47 48 (Mx256a My256a Mz20)
+ 	arc 48 49 (Mx267a My267a Mz20)
+ 	arc 49 42 (Mx270a My270a Mz20)
+ 	
+ 	arc 50 26 (Mxt0a Myt0a Mzta)
+ 	arc 50 27 (Mxt1a Myt1a Mzta)
+ 	arc 50 28 (Mxt2a Myt2a Mzta)
+ 	arc 50 29 (Mxt3a Myt3a Mzta)
+ 	arc 50 30 (Mxt4a Myt4a Mzta)
+ 	arc 50 31 (Mxt5a Myt5a Mzta)
+ 	arc 50 32 (Mxt6a Myt6a Mzta)
+ 	arc 50 33 (Mxt7a Myt7a Mzta)
+ 	
+ 	arc 51 42  (Mxb0a Myb0a Mzba)
+ 	arc 51 43  (Mxb1a Myb1a Mzba)
+ 	arc 51 44  (Mxb2a Myb2a Mzba)
+ 	arc 51 45  (Mxb3a Myb3a Mzba)
+ 	arc 51 46  (Mxb4a Myb4a Mzba)
+ 	arc 51 47  (Mxb5a Myb5a Mzba)
+ 	arc 51 48  (Mxb6a Myb6a Mzba)
+ 	arc 51 49  (Mxb7a Myb7a Mzba)
+ 	
+  arc 26 34  (Mx08a My08a Mz01a)
+ 	arc 27 35  (Mx19a My19a Mz01a)
+ 	arc 28 36 (Mx210a My210a Mz01a)
+ 	arc 29 37 (Mx311a My311a Mz01a)
+  arc 30 38 (Mx412a My412a Mz01a)
+ 	arc 31 39 (Mx513a My513a Mz01a)
+ 	arc 32 40 (Mx614a My614a Mz01a)
+ 	arc 33 41 (Mx715a My715a Mz01a)
+ 	 	 	
+  arc 34 42  (Mx816a  My816a  Mz12a)
+ 	arc 35 43  (Mx917a  My917a  Mz12a)
+ 	arc 36 44 (Mx1018a My1018a Mz12a)
+ 	arc 37 45 (Mx1119a My1119a Mz12a)
+  arc 38 46 (Mx1220a My1220a Mz12a)
+ 	arc 39 47 (Mx1321a My1321a Mz12a)
+ 	arc 40 48 (Mx1422a My1422a Mz12a)
+ 	arc 41 49 (Mx1523a My1523a Mz12a)
+);
+
+blocks
+(
+  // * * * SPHERICAL MESH * * * 
+    // Top section  
+    hex (0 26 27 1 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 0
+    hex (1 27 28 2 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 1 
+    hex (2 28 29 3 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 2
+    hex (3 29 30 4 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 3
+    hex (4 30 31 5 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 4
+    hex (5 31 32 6 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 5
+    hex (6 32 33 7 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 6
+    hex (7 33 26 0 24 50 50 24) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 7
+    // Top halfway section  
+    hex (8  34 35 9  0 26 27 1 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 8
+    hex (9  35 36 10 1 27 28 2 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 9
+    hex (10 36 37 11 2 28 29 3 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 10
+    hex (11 37 38 12 3 29 30 4 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 11
+    hex (12 38 39 13 4 30 31 5 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 12
+    hex (13 39 40 14 5 31 32 6 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 13
+    hex (14 40 41 15 6 32 33 7 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 14
+    hex (15 41 34 8  7 33 26 0 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 15
+    
+    // Bottom halfway section  
+    hex (16 42 43 17 8  34 35 9 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 16
+    hex (17 43 44 18 9  35 36 10) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 17
+    hex (18 44 45 19 10 36 37 11) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 18
+    hex (19 45 46 20 11 37 38 12) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 19
+    hex (20 46 47 21 12 38 39 13) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 20
+    hex (21 47 48 22 13 39 40 14) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 21
+    hex (22 48 49 23 14 40 41 15) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 22
+    hex (23 49 42 16 15 41 34 8 ) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 23
+    
+    // Top section  
+    hex (25 51 51 25 16 42 43 17) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 24
+    hex (25 51 51 25 17 43 44 18) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 25
+    hex (25 51 51 25 18 44 45 19) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 26
+    hex (25 51 51 25 19 45 46 20) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 27
+    hex (25 51 51 25 20 46 47 21) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 28
+    hex (25 51 51 25 21 47 48 22) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 29
+    hex (25 51 51 25 22 48 49 23) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 30
+    hex (25 51 51 25 23 49 42 16) (Nrad Nphi Ntheta) simpleGrading (Srad Sphi Stheta) // 31
+    
+    // * * * Rectangular mesh * * * 
+    // Top section
+    hex (26 52 53 27 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 32
+    hex (27 53 54 28 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 33
+    hex (28 54 55 29 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 34
+    hex (29 55 56 30 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 35
+    hex (30 56 57 31 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 36
+    hex (31 57 58 32 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 37
+    hex (32 58 59 33 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 38
+    hex (33 59 52 26 50 60 60 50) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 39
+
+    // Top section
+    hex (61 42 43 62 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 40
+    hex (62 43 44 63 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 41
+    hex (63 44 45 64 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 42
+    hex (64 45 46 65 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 43
+    hex (65 46 47 66 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 44
+    hex (66 47 48 67 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 45
+    hex (67 48 49 68 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 46
+    hex (68 49 42 61 69 51 51 69) (NradMZ Nphi Ntheta) simpleGrading (SradMZ Sphi Stheta) // 47
+    
+    // Equator sections
+    hex (34 72 73 35 26 70 71 27) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 48
+    hex (42 74 75 43 34 72 73 35) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 49
+    
+    hex (35 79 80 36 27 76 77 28) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 50
+    hex (43 82 83 44 35 79 80 36) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 51
+    hex (36 80 81 37 28 77 78 29) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 52
+    hex (44 83 84 45 36 80 81 37) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 53
+    
+    hex (37 88 89 38 29 85 86 30) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 54
+    hex (45 91 92 46 37 88 89 38) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 55
+    hex (38 89 90 39 30 86 87 31) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 56
+    hex (46 92 93 47 38 89 90 39) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 57
+    
+    hex (39 97  98  40 31 94 95 32) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 58
+    hex (47 100 101 48 39 97 98 40) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 59
+    hex (40 98  99  41 32 95 96 33) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 60
+    hex (48 101 102 49 40 98 99 41) (NradMY Nphi Ntheta) simpleGrading (SradMY Sphi Stheta) // 61
+    
+    hex (41 104 72 34 33 103 70 26) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 62
+    hex (49 105 74 42 41 104 72 34) (NradMX Nphi Ntheta) simpleGrading (SradMX Sphi Stheta) // 63
+    
+    // Equator/corner sections
+    hex (35 73 107 79 27 71 106 76) (NradMX NradMY Ntheta) simpleGrading (SradMX SradMY Stheta) // 64
+    hex (43 75 108 82 35 73 107 79) (NradMX NradMY Ntheta) simpleGrading (SradMX SradMY Stheta) // 65
+
+    hex (37 81 110 88 29 78 109 85) (NradMY NradMX Ntheta) simpleGrading (SradMY SradMX Stheta) // 66
+    hex (45 84 111 91 37 81 110 88) (NradMY NradMX Ntheta) simpleGrading (SradMY SradMX Stheta) // 67
+
+    hex (39 90 116 97  31 87 115 94) (NradMX NradMY Ntheta) simpleGrading (SradMX SradMY Stheta) // 68
+    hex (47 93 117 100 39 90 116 97) (NradMX NradMY Ntheta) simpleGrading (SradMX SradMY Stheta) // 69
+
+    hex (41 99  113 104 33 96 112 103) (NradMY NradMX Ntheta) simpleGrading (SradMY SradMX Stheta) // 70
+    hex (49 102 114 105 41 99 113 104) (NradMY NradMX Ntheta) simpleGrading (SradMY SradMX Stheta) // 71
+
+    // Top corner sections
+    hex (29 78 109 85 55 121 122 138) (NradMY NradMX NradMZ) simpleGrading (SradMY SradMX SradMZ) // 72
+    hex (29 85  86 30 55 138 139  56) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 73
+    hex (30 86  87 31 56 139 140  57) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 74
+    hex (31 87 115 94 57 140 132 131) (NradMX NradMY NradMZ) simpleGrading (SradMX SradMY SradMZ) //75
+
+    hex (31 94 95 32 57 131 130 58) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 76
+    hex (32 95 96 33 58 130 129 59) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 77
+    hex (33 96 112 103 59 129 128 143) (NradMY NradMX NradMZ) simpleGrading (SradMY SradMX SradMZ) // 78
+    hex (33 103 70 26 59 143 142 52) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 79
+    hex (26 70 71 27 52 142 141 53) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 80
+    
+    hex (27 71 106 76 53 141 118 119) (NradMX NradMY NradMZ) simpleGrading (SradMX SradMY SradMZ) // 81
+    hex (27 76 77 28 53 119 120 54) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 82
+    hex (28 77 78 29 54 120 121 55) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 83
+    
+    hex (68 146 145 61 49 105 74 42) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 84
+    hex (61 145 144 62 42 74 75 43) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 85
+    hex (62 144 123 124 43 75 108 82) (NradMX NradMY NradMZ) simpleGrading (SradMX SradMY SradMZ) // 86
+    
+    hex (62 124 125 63 43 82 83 44) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 87
+    hex (63 125 126 64 44 83 84 45) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 88
+    hex (64 126 127 147 45 84 111 91) (NradMY NradMX NradMZ) simpleGrading (SradMY SradMX SradMZ) // 89
+    hex (64 147 148 65 45 91 92 46) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 90
+    
+    hex (65 148 149 66 46 92 93 47) (NradMX Nphi NradMZ) simpleGrading (SradMX Sphi SradMZ) // 91
+    hex (66 149 137 136 47 93 117 100) (NradMX NradMY NradMZ) simpleGrading (SradMX SradMY SradMZ) // 92
+    hex (66 136 135 67 47 100 101 48) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 93
+    hex (67 135 134 68 48 101 102 49) (NradMY Nphi NradMZ) simpleGrading (SradMY Sphi SradMZ) // 94
+    hex (68 134 133 146 49 102 114 105) (NradMY NradMX NradMZ) simpleGrading (SradMY SradMX SradMZ) // 95
+);
+
+boundary
+(
+    sphereWall
+    {
+        type patch;
+        faces
+        (
+            (0  24 24  1)
+            (1  24 24  2)
+            (2  24 24  3)
+            (3  24 24  4)
+            (4  24 24  5)
+            (5  24 24  6)
+            (6  24 24  7)
+            (7  24 24  0)
+            (8   0  1  9)
+            (9   1  2 10)
+            (10  2  3 11)
+            (11  3  4 12)
+            (12  4  5 13)
+            (13  5  6 14)
+            (14  6  7 15)
+            (15  7  0  8)
+            (16  8  9 17)
+            (17  9 10 18)
+            (18 10 11 19)
+            (19 11 12 20)
+            (20 12 13 21)
+            (21 13 14 22)
+            (22 14 15 23)
+            (23 15  8 16)
+            (25 23 16 25)
+            (25 16 17 25)
+            (25 17 18 25)
+            (25 18 19 25)
+            (25 19 20 25)
+            (25 20 21 25)
+            (25 21 22 25)
+            (25 22 23 25)
+        );
+    }
+    posXWall
+    {
+      type wall;
+      faces
+      (
+        (128 112 103 143)
+        (112 113 104 103)
+        (113 114 105 104)
+        (114 133 146 105)
+        (143 103 70 142)
+        (103 104 72 70)
+        (104 105 74 72)
+        (105 146 145 74)
+        (142 70 71 141)
+        (70 72 73 71)
+        (72 74 75 73)
+        (74 145 144 75)
+        (141 71 106 118)
+        (71 73 107 106)
+        (73 75 108 107)
+        (75 144 123 108)
+      );
+    }
+    negXWall
+    {
+      type wall;
+      faces
+      (
+        (137 117 93 149)
+        (117 116 90 93)
+        (116 115 87 90)
+        (115 132 140 87)
+        (149 93 92 148)
+        (93 90 89 92)
+        (90 87 86 89)
+        (87 140 139 86)
+        (148 92 91 147)
+        (92 89 88 91)
+        (89 86 85 88)
+        (86 139 138 85)
+        (147 91 111 127)
+        (91 88 110 111)
+        (88 85 109 110)
+        (85 138 122 109)
+      );
+    }
+    posYWall
+    {
+      type wall;
+      faces
+      (
+        (118 106 76 119)
+        (106 107 79 76)
+        (107 108 82 79)
+        (108 123 124 82)
+        (119 76 77 120)
+        (76 79 80 77)
+        (79 82 83 80)
+        (82 124 125 83)
+        (120 77 78 121)
+        (77 80 81 78)
+        (80 83 84 81)
+        (83 125 126 84)
+        (121 78 109 122)
+        (78 81 110 109)
+        (81 84 111 110)
+        (84 126 127 111)
+      );
+    }
+    negYWall
+    {
+      type wall;
+      faces
+      (
+        (133 114 102 134)
+        (114 113 99 102)
+        (113 112 96 99)
+        (112 128 129 96)
+        (134 102 101 135)
+        (102 99 98 101)
+        (99 96 95 98)
+        (96 129 130 95)
+        (135 101 100 136)
+        (101 98 97 100)
+        (98 95 94 97)
+        (95 130 131 94)
+        (136 100 117 137)
+        (100 97 116 117)
+        (97 94 115 116)
+        (94 131 132 115)
+      );
+    }
+    posZWall
+    {
+      type wall;
+      faces
+      (
+        (128 143 59 129)
+        (143 142 52 59)
+        (142 141 53 52)
+        (141 118 119 53)
+        (129 59 58 130)
+        (60 52 53 60)
+        (60 53 54 60)
+        (60 54 55 60)
+        (60 55 56 60)
+        (60 56 57 60)
+        (60 57 58 60)
+        (60 58 59 60)
+        (60 59 52 60)
+        (53 119 120 54)
+        (130 58 57 131)
+        (54 120 121 55)
+        (131 57 140 132)
+        (57 56 139 140)
+        (56 55 138 139)
+        (55 121 122 138)
+      );
+    }
+    negZWall
+    {
+      type patch;
+      faces
+      (
+        (123 144 62 124)
+        (144 145 61 62)
+        (145 146 68 61)
+        (146 133 134 68)
+        (124 62 63 125)
+        (125 63 64 126)
+        (68 134 135 67)
+        (67 135 136 66)
+        (126 64 147 127)
+        (64 65 148 147)
+        (65 66 149 148)
+        (66 136 137 149)
+        (69 62 61 69)
+        (69 63 62 69)
+        (69 64 63 69)
+        (69 65 64 69)
+        (69 66 65 69)
+        (69 67 66 69)
+        (69 68 67 69)
+        (69 61 68 69)
+      );
+    }
+);
+
+// ************************************************************************* //
+
+
